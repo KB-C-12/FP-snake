@@ -5,10 +5,15 @@ from numpy import sqrt
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-GRAY = (80, 80, 80)
-BLUE = (0, 0, 255)
-GREEN = (0, 255, 0)
-RED = (200, 0, 0)
+GRAY = (120, 120, 120)
+BLUE = (112, 161, 215)
+GREEN = (133, 202, 119)
+RED = (255, 100, 90)
+
+
+HEAD = (210, 145, 188)
+BACKGROUND = (255, 244, 156)
+BODY = (224, 187, 228)
 
 DOWN = 0
 RIGHT = 1
@@ -27,23 +32,23 @@ class Spot:
     self.camefrom = []
     self.obstacle = False
 
-    if randint(1, 101) < 3:
+    if randint(1, rows - 2) < 3:    # < jumlah obstacle dlm 1 tempat
         self.obstacle = True
 
   def show(self, color):
     pg.draw.rect(screen, color, [self.x*hr+2, self.y*wr+2, hr-4, wr-4])
 
   def add_neighbors(self):
-    if self.x > 0:
+    if self.x > 1:
         self.neighbors.append(grid[self.x - 1][self.y])
 
-    if self.y > 0:
+    if self.y > 1:
         self.neighbors.append(grid[self.x][self.y - 1])
 
-    if self.x < rows - 1:
+    if self.x < rows - 2:
         self.neighbors.append(grid[self.x + 1][self.y])
 
-    if self.y < cols - 1:
+    if self.y < cols - 2:
         self.neighbors.append(grid[self.x][self.y + 1])
 
 def getpath(food1, snake1):
@@ -115,7 +120,7 @@ def getpath(food1, snake1):
   return dir_array1
 
 def drawGrid(w, rows, surface):
-  sizeBtwn = w // rows
+  sizeBtwn = w / rows
 
   x = 0
   y = 0
@@ -123,21 +128,21 @@ def drawGrid(w, rows, surface):
     x += sizeBtwn
     y += sizeBtwn
 
-    pg.draw.line(surface, GRAY, (x, 0), (x, w))
-    pg.draw.line(surface, GRAY, (0, y), (w, y))
+    pg.draw.line(surface, WHITE, (x, 0), (x, w))
+    pg.draw.line(surface, WHITE, (0, y), (w, y))
  
   pass
 
 def redrawWindow(surface):
   global rows, width
-  surface.fill(BLACK)
+  surface.fill(BACKGROUND)
   drawGrid(width, rows, surface)
-  pg.display.update()
+  # pg.display.update()
 
 ################################## MAIN PROGRAM ############################################
 pg.init()
-cols = 30
-rows = 30
+cols = 40
+rows = 40
 
 width = 720
 height = 720
@@ -162,8 +167,8 @@ for i in range(rows):
     grid[i][j].add_neighbors()
 
 
-snake = [grid[rows//2][cols//2]]                      # posisi awal snake di tengah grid
-food = grid[randint(0, rows-1)][randint(0, cols-1)]   # posisi awal makanan random di grid
+snake = [grid[rows/2][cols/2]]                      # posisi awal snake di tengah grid
+food = grid[randint(1, rows-2)][randint(1, cols-2)]   # posisi awal makanan random di grid
 current = snake[-1]                                   # posisi saat ini(head)
 
 dir_array = getpath(food, snake)
@@ -201,7 +206,7 @@ while not done:
     sp.call('clear',shell=True)
     print("Score = ",score)
     while 1:
-      food = grid[randint(0, rows - 1)][randint(0, cols - 1)]   # posisi makanan baru dirandom
+      food = grid[randint(1, rows - 2)][randint(1, cols - 2)]   # posisi makanan baru dirandom
       if not (food.obstacle or food in snake): break
         
     dir_array = getpath(food, snake)
@@ -210,16 +215,16 @@ while not done:
 
   # warna badan ular
   for spot in snake:
-    spot.show(WHITE)
+    spot.show(BODY)
 
   # warna obstacle
   for i in range(rows):
     for j in range(cols):
-      if grid[i][j].obstacle:
+      if grid[i][j].obstacle or i == 0 or j == 0 or i == rows-1 or j == cols-1:
         grid[i][j].show(RED)
 
   food.show(GREEN)
-  snake[-1].show(BLUE)
+  snake[-1].show(HEAD)
   pg.display.flip()
 
   if not dir_array:
