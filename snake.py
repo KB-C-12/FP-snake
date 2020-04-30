@@ -2,6 +2,10 @@ import pygame as pg
 import subprocess as sp
 from random import randint
 from numpy import sqrt
+import tkinter
+from tkinter import *
+from tkinter import messagebox
+from PIL import ImageTk,Image
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -137,12 +141,71 @@ def redrawWindow(surface):
   global rows, width
   surface.fill(BACKGROUND)
   drawGrid(width, rows, surface)
-  # pg.display.update()
+
+##################### MAIN MENU ######################################
+root = Tk()
+root.title("\tSNAKE GAME - WELCOME!!!")
+
+def mainMenu():
+  root.geometry('480x480')
+  my_img = ImageTk.PhotoImage(Image.open("assets/snake.png"))
+  imageLabel = Label(image=my_img)
+  imageLabel.grid(row=0, column=0, columnspan=3)
+
+  
+  root.destroy()
+
+def setup(size, level):
+  pass
+##################### MAIN MENU ######################################
+
+
+################### END MESSAGE #####################################
+
+def Again():
+  root.destroy()
+  mainMenu()
+
+def Exit():
+  global done, out
+  done = True
+  out = True
+  root.destroy()
+
+def endMessage(content):
+  root.title("\tSNAKE GAME - GAME OVER!!!")
+  root.geometry('360x144')
+  myLabel = Label(root, text=content)
+  myLabel.pack()
+
+  myYesButton = Button(root, text="Play again", command=Again)
+  myYesButton.pack()
+
+  myNoButton = Button(root, text="Exit", command=Exit)
+  myNoButton.pack()
+
+  root.mainloop()
+
+def message_box(content):
+  root.title("Key pressed")
+  messageFrame = LabelFrame(root, padx=10, pady=10)
+  messageFrame.pack(padx=10, pady=10)
+
+  myLabel = Label(messageFrame, text=content)
+  myLabel.pack()
+
+  myNoButton = Button(messageFrame, text="OK", command=Exit)
+  myNoButton.pack()
+
+  root.mainloop()
+
+################### END MESSAGE #####################################
+
 
 ################################## MAIN PROGRAM ############################################
 pg.init()
-cols = 40
-rows = 40
+cols = 30
+rows = 30
 
 width = 720
 height = 720
@@ -167,7 +230,7 @@ for i in range(rows):
     grid[i][j].add_neighbors()
 
 
-snake = [grid[rows/2][cols/2]]                      # posisi awal snake di tengah grid
+snake = [grid[rows//2][cols//2]]                      # posisi awal snake di tengah grid
 food = grid[randint(1, rows-2)][randint(1, cols-2)]   # posisi awal makanan random di grid
 current = snake[-1]                                   # posisi saat ini(head)
 
@@ -181,7 +244,7 @@ done = False
 
 while not done:
   pg.time.delay(0) #makin besar makin lambat
-  clock.tick(20)        #kecepatan game, makin besar makin cepat
+  clock.tick(100)        #kecepatan game, makin besar makin cepat
   redrawWindow(screen)  #background color map
 
   direction = dir_array.pop(-1)
@@ -230,17 +293,7 @@ while not done:
   if not dir_array:
     print("GAME OVER!!!")
     pg.display.set_caption("SNAKE GAME - GAME OVER!!!")
-    
-    while True:
-      for event in pg.event.get():
-        if event.type == pg.KEYDOWN:
-          if event.key == pg.K_q or event.key == pg.K_ESCAPE:
-            print("ESC or Q pressed, EXIT GAME")
-            done = True
-            out = True
-            break
-      if out : break
-
+    endMessage('GAME OVER!!!' + "\nSCORE : "+ str(score) +"\n")
 
   for event in pg.event.get():
     if event.type == pg.QUIT:
@@ -249,5 +302,7 @@ while not done:
     elif event.type == pg.KEYDOWN:
       if event.key == pg.K_q or event.key == pg.K_ESCAPE:
         print("ESC or Q pressed, EXIT GAME")
+        message_box("ESC or Q pressed, EXIT GAME" + "\nSCORE : "+ str(score) +"\n")
         done = True
 ########################################END OF MAIN####################
+    
