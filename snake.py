@@ -36,7 +36,8 @@ class Spot:
     self.camefrom = []
     self.obstacle = False
 
-    if randint(1, rows - 2) < 3:    # < jumlah obstacle dlm 1 tempat
+    global level
+    if randint(1, rows - 2) < level:    # < jumlah obstacle dlm 1 tempat
         self.obstacle = True
 
   def show(self, color):
@@ -142,32 +143,64 @@ def redrawWindow(surface):
   surface.fill(BACKGROUND)
   drawGrid(width, rows, surface)
 
-##################### MAIN MENU ######################################
+############################ DECLARATION ###################################
+pg.init()
 root = Tk()
-root.title("\tSNAKE GAME - WELCOME!!!")
+destroyed = False
+toMainMenu = True
 
-def mainMenu():
-  root.geometry('480x480')
-  my_img = ImageTk.PhotoImage(Image.open("assets/snake.png"))
-  imageLabel = Label(image=my_img)
-  imageLabel.grid(row=0, column=0, columnspan=3)
+cols = 24
+rows = 24
 
-  
-  root.destroy()
+width = 720
+height = 720
+wr = width/cols
+hr = height/rows
+direction = 1
+level = 1
 
-def setup(size, level):
-  pass
-##################### MAIN MENU ######################################
+screen = pg.display.set_mode([width, height])
+pg.display.set_caption("SNAKE GAME")
+clock = pg.time.Clock()
+
+#buat grid
+grid = []
+for i in range(rows):
+  grid.append([])
+  for j in range(cols):
+    grid[i].append(Spot(i,j))
+
+#tiap grid tau neighbornya
+for i in range(rows):
+  for j in range(cols):
+    grid[i][j].add_neighbors()
+
+
+snake = [grid[rows//2][cols//2]]                      # posisi awal snake di tengah grid
+food = grid[randint(1, rows-2)][randint(1, cols-2)]   # posisi awal makanan random di grid
+current = snake[-1]                                   # posisi saat ini(head)
+
+dir_array = getpath(food, snake)
+score = 0
+
+sp.call('clear',shell=True)
+print("Score = ",score)
+out = False
+done = False
+isSetup = True
+#-------------------------------- END DECLARATION -------------------------------------#
 
 
 ################### END MESSAGE #####################################
-
 def Again():
+  global destroyed
   root.destroy()
+  destroyed = True
   mainMenu()
 
 def Exit():
   global done, out
+  print('EXIT GAME')
   done = True
   out = True
   root.destroy()
@@ -199,50 +232,138 @@ def message_box(content):
 
   root.mainloop()
 
-################### END MESSAGE #####################################
+#-------------------------- END MESSAGE -----------------------------------#
+
+################################### MAIN MENU ######################################
+def setLevel(l):
+  global level
+  level = l
+  myLabel = Label(root, text="Level : " + str(level))
+  myLabel.grid(row=5, column=0, columnspan=5, padx=10, pady=10)
+
+def setSize(s):
+  global cols, rows
+  cols = s
+  rows = s
+  myLabel = Label(root, text="Size : " + str(s))
+  myLabel.grid(row=6, column=0, columnspan=5, padx=10, pady=10)
+
+def mainMenu():
+  global destroyed, root
+  if destroyed:
+    root = Tk()
+    destroyed = False
+
+  root.title("\tSNAKE GAME - WELCOME!!!")
+  root.geometry('650x810')
+  my_img = ImageTk.PhotoImage(Image.open("assets/snake.png"))
+  
+  imageLabel = Label(image=my_img)
+  imageLabel.grid(row=0, column=0, columnspan=5, padx=10, pady=10)
+  
+  levelLabel = Label(root, text="Level:")
+  levelLabel.grid(row=1, column=0, columnspan=5, padx=10, pady=10)
+
+  level_1 = Button(root, text="1", padx=40, pady=20, command=lambda: setLevel(1))
+  level_2 = Button(root, text="2", padx=40, pady=20, command=lambda: setLevel(2))
+  level_3 = Button(root, text="3", padx=40, pady=20, command=lambda: setLevel(3))
+  level_4 = Button(root, text="4", padx=40, pady=20, command=lambda: setLevel(4))
+  level_5 = Button(root, text="5", padx=40, pady=20, command=lambda: setLevel(5))
+
+  level_1.grid(row=2, column=0)
+  level_2.grid(row=2, column=1)
+  level_3.grid(row=2, column=2)
+  level_4.grid(row=2, column=3)
+  level_5.grid(row=2, column=4)
+  
+  sizeLabel = Label(root, text="Size:")
+  sizeLabel.grid(row=3, column=0, columnspan=5, padx=10, pady=10)
+
+  size_24 = Button(root, text="24x24", padx=40, pady=20, command=lambda: setSize(24))
+  size_30 = Button(root, text="30x30", padx=40, pady=20, command=lambda: setSize(30))
+  size_36 = Button(root, text="36x36", padx=40, pady=20, command=lambda: setSize(36))
+  size_40 = Button(root, text="40x40", padx=40, pady=20, command=lambda: setSize(40))
+  size_45 = Button(root, text="45x45", padx=40, pady=20, command=lambda: setSize(45))
+
+  size_24.grid(row=4, column=0)
+  size_30.grid(row=4, column=1)
+  size_36.grid(row=4, column=2)
+  size_40.grid(row=4, column=3)
+  size_45.grid(row=4, column=4)
+
+  levelDesc = Label(root, text="Level : " + str(level))
+  levelDesc.grid(row=5, column=0, columnspan=5, padx=10, pady=10)
+
+  sizeDesc = Label(root, text="Size : " + str(cols))
+  sizeDesc.grid(row=6, column=0, columnspan=5, padx=10, pady=10)
+
+  saveButton = Button(root, text="PLAY!!!", padx=90, pady=20, command=lambda: goTosetup())
+  saveButton.grid(row=7, column=0, columnspan=5, padx=10, pady=10)
+  root.mainloop()
+
+def goTosetup():
+  root.destroy()
+  global destroyed
+  destroyed = True
+  setup()
+
+def setup():
+  global cols, rows, width, height, wr, hr, direction, screen, clock, grid, snake, food, current, dir_array, score, out, done, isSetup
+
+  width = 720
+  height = 720
+  wr = width/cols
+  hr = height/rows
+  direction = 1
+
+  screen = pg.display.set_mode([width, height])
+  pg.display.set_caption("SNAKE GAME")
+  clock = pg.time.Clock()
+
+  #buat grid
+  grid = []
+  for i in range(rows):
+    grid.append([])
+    for j in range(cols):
+      grid[i].append(Spot(i,j))
+
+  #tiap grid tau neighbornya
+  for i in range(rows):
+    for j in range(cols):
+      grid[i][j].add_neighbors()
+
+
+  snake = [grid[rows//2][cols//2]]                      # posisi awal snake di tengah grid
+  food = grid[randint(1, rows-2)][randint(1, cols-2)]   # posisi awal makanan random di grid
+  current = snake[-1]                                   # posisi saat ini(head)
+
+  dir_array = getpath(food, snake)
+  score = 0
+
+  sp.call('clear',shell=True)
+  print("Level = ",level)
+  print("Size = ",cols)
+  print("Score = ",score)
+  out = False
+  done = False
+  isSetup = True
+#-------------------------------- MAIN MENU ----------------------------------#
 
 
 ################################## MAIN PROGRAM ############################################
-pg.init()
-cols = 30
-rows = 30
-
-width = 720
-height = 720
-wr = width/cols
-hr = height/rows
-direction = 1
-
-screen = pg.display.set_mode([width, height])
-pg.display.set_caption("SNAKE GAME")
-clock = pg.time.Clock()
-
-#buat grid
-grid = []
-for i in range(rows):
-  grid.append([])
-  for j in range(cols):
-    grid[i].append(Spot(i,j))
-
-#tiap grid tau neighbornya
-for i in range(rows):
-  for j in range(cols):
-    grid[i][j].add_neighbors()
-
-
-snake = [grid[rows//2][cols//2]]                      # posisi awal snake di tengah grid
-food = grid[randint(1, rows-2)][randint(1, cols-2)]   # posisi awal makanan random di grid
-current = snake[-1]                                   # posisi saat ini(head)
-
-dir_array = getpath(food, snake)
-score = 0
-
-sp.call('clear',shell=True)
-print("Score = ",score)
-out = False
-done = False
-
 while not done:
+  if toMainMenu:
+    mainMenu()
+    toMainMenu = False
+  
+  if isSetup:
+    setup()
+    isSetup = False
+
+  if destroyed:
+    root = Tk()
+    destroyed = False
+
   pg.time.delay(0) #makin besar makin lambat
   clock.tick(100)        #kecepatan game, makin besar makin cepat
   redrawWindow(screen)  #background color map
@@ -267,6 +388,8 @@ while not done:
   if current.x == food.x and current.y == food.y:
     score = score + 1
     sp.call('clear',shell=True)
+    print("Level = ",level)
+    print("Size = ",cols)
     print("Score = ",score)
     while 1:
       food = grid[randint(1, rows - 2)][randint(1, cols - 2)]   # posisi makanan baru dirandom
