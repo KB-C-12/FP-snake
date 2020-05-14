@@ -188,6 +188,7 @@ print("Score = ",score)
 out = False
 done = False
 isSetup = True
+modeAI = True
 #-------------------------------- END DECLARATION -------------------------------------#
 
 
@@ -239,36 +240,45 @@ def setLevel(l):
   global level
   level = l
   myLabel = Label(root, text="Level : " + str(level))
-  myLabel.grid(row=5, column=0, columnspan=5, padx=10, pady=10)
+  myLabel.grid(row=7, column=0, columnspan=5, padx=10, pady=5)
 
 def setSize(s):
   global cols, rows
   cols = s
   rows = s
   myLabel = Label(root, text="Size : " + str(s))
-  myLabel.grid(row=6, column=0, columnspan=5, padx=10, pady=10)
+  myLabel.grid(row=8, column=0, columnspan=5, padx=10, pady=5)
+
+def setMode(isAI):
+  global modeAI
+  modeAI = isAI
+  if modeAI: messMode = 'AI        '
+  else : messMode = 'Human'
+
+  modeDesc = Label(root, text="Mode : " + messMode)
+  modeDesc.grid(row=9, column=0, columnspan=5, padx=10, pady=5)
 
 def mainMenu():
-  global destroyed, root
+  global destroyed, root, modeAI
   if destroyed:
     root = Tk()
     destroyed = False
 
   root.title("\tSNAKE GAME - WELCOME!!!")
-  root.geometry('650x810')
+  root.geometry('650x820')
   my_img = ImageTk.PhotoImage(Image.open("assets/snake.png"))
   
   imageLabel = Label(image=my_img)
-  imageLabel.grid(row=0, column=0, columnspan=5, padx=10, pady=10)
+  imageLabel.grid(row=0, column=0, columnspan=5, padx=10, pady=0)
   
   levelLabel = Label(root, text="Level:")
-  levelLabel.grid(row=1, column=0, columnspan=5, padx=10, pady=10)
+  levelLabel.grid(row=1, column=0, columnspan=5, padx=10, pady=0)
 
-  level_1 = Button(root, text="1", padx=40, pady=20, command=lambda: setLevel(1))
-  level_2 = Button(root, text="2", padx=40, pady=20, command=lambda: setLevel(2))
-  level_3 = Button(root, text="3", padx=40, pady=20, command=lambda: setLevel(3))
-  level_4 = Button(root, text="4", padx=40, pady=20, command=lambda: setLevel(4))
-  level_5 = Button(root, text="5", padx=40, pady=20, command=lambda: setLevel(5))
+  level_1 = Button(root, text="1", padx=40, pady=10, command=lambda: setLevel(1))
+  level_2 = Button(root, text="2", padx=40, pady=10, command=lambda: setLevel(2))
+  level_3 = Button(root, text="3", padx=40, pady=10, command=lambda: setLevel(3))
+  level_4 = Button(root, text="4", padx=40, pady=10, command=lambda: setLevel(4))
+  level_5 = Button(root, text="5", padx=40, pady=10, command=lambda: setLevel(5))
 
   level_1.grid(row=2, column=0)
   level_2.grid(row=2, column=1)
@@ -279,11 +289,11 @@ def mainMenu():
   sizeLabel = Label(root, text="Size:")
   sizeLabel.grid(row=3, column=0, columnspan=5, padx=10, pady=10)
 
-  size_24 = Button(root, text="24x24", padx=40, pady=20, command=lambda: setSize(24))
-  size_30 = Button(root, text="30x30", padx=40, pady=20, command=lambda: setSize(30))
-  size_36 = Button(root, text="36x36", padx=40, pady=20, command=lambda: setSize(36))
-  size_40 = Button(root, text="40x40", padx=40, pady=20, command=lambda: setSize(40))
-  size_45 = Button(root, text="45x45", padx=40, pady=20, command=lambda: setSize(45))
+  size_24 = Button(root, text="24x24", padx=40, pady=10, command=lambda: setSize(24))
+  size_30 = Button(root, text="30x30", padx=40, pady=10, command=lambda: setSize(30))
+  size_36 = Button(root, text="36x36", padx=40, pady=10, command=lambda: setSize(36))
+  size_40 = Button(root, text="40x40", padx=40, pady=10, command=lambda: setSize(40))
+  size_45 = Button(root, text="45x45", padx=40, pady=10, command=lambda: setSize(45))
 
   size_24.grid(row=4, column=0)
   size_30.grid(row=4, column=1)
@@ -291,14 +301,28 @@ def mainMenu():
   size_40.grid(row=4, column=3)
   size_45.grid(row=4, column=4)
 
+  modeLabel = Label(root, text="Mode: ")
+  modeLabel.grid(row=5, column=0, columnspan=5, padx=10, pady=15)
+  human = Button(root, text="Human", padx=40, pady=10, command=lambda: setMode(False))
+  ai = Button(root, text="AI", padx=40, pady=10, command=lambda: setMode(True))
+
+  human.grid(row=6, column=1)
+  ai.grid(row=6, column=3)
+
   levelDesc = Label(root, text="Level : " + str(level))
-  levelDesc.grid(row=5, column=0, columnspan=5, padx=10, pady=10)
+  levelDesc.grid(row=7, column=0, columnspan=5, padx=10, pady=5)
 
   sizeDesc = Label(root, text="Size : " + str(cols))
-  sizeDesc.grid(row=6, column=0, columnspan=5, padx=10, pady=10)
+  sizeDesc.grid(row=8, column=0, columnspan=5, padx=10, pady=5)
+
+  if modeAI: messMode = 'AI        '
+  else : messMode = 'Human'
+
+  modeDesc = Label(root, text="Mode : " + messMode)
+  modeDesc.grid(row=9, column=0, columnspan=5, padx=10, pady=5)
 
   saveButton = Button(root, text="PLAY!!!", padx=90, pady=20, command=lambda: goTosetup())
-  saveButton.grid(row=7, column=0, columnspan=5, padx=10, pady=10)
+  saveButton.grid(row=10, column=0, columnspan=5, padx=10, pady=10)
   root.mainloop()
 
 def goTosetup():
@@ -365,11 +389,12 @@ while not done:
     destroyed = False
 
   pg.time.delay(0) #makin besar makin lambat
-  clock.tick(100)        #kecepatan game, makin besar makin cepat
+  clock.tick(12)        #kecepatan game, makin besar makin cepat
   redrawWindow(screen)  #background color map
 
-  direction = dir_array.pop(-1)
-  
+  if modeAI: 
+    direction = dir_array.pop(-1)
+
   if direction == DOWN:
     snake.append(grid[current.x][current.y + 1])
   
@@ -409,6 +434,15 @@ while not done:
       if grid[i][j].obstacle or i == 0 or j == 0 or i == rows-1 or j == cols-1:
         grid[i][j].show(RED)
 
+  # mati manual
+  for i in range(rows):
+    for j in range(cols):
+      if grid[i][j].obstacle or i == 0 or j == 0 or i == rows-1 or j == cols-1:
+        if current.x == i and current.y == j:
+          print("GAME OVER!!!")
+          pg.display.set_caption("SNAKE GAME - GAME OVER!!!")
+          endMessage('GAME OVER!!!' + "\nSCORE : "+ str(score) +"\n")
+
   food.show(GREEN)
   snake[-1].show(HEAD)
   pg.display.flip()
@@ -427,5 +461,10 @@ while not done:
         print("ESC or Q pressed, EXIT GAME")
         message_box("ESC or Q pressed, EXIT GAME" + "\nSCORE : "+ str(score) +"\n")
         done = True
+
+      if event.key == pg.K_w or event.key == pg.K_UP: direction = UP
+      if event.key == pg.K_s or event.key == pg.K_DOWN: direction = DOWN
+      if event.key == pg.K_a or event.key == pg.K_LEFT: direction = LEFT
+      if event.key == pg.K_d or event.key == pg.K_RIGHT: direction = RIGHT
 ########################################END OF MAIN####################
     
