@@ -6,6 +6,7 @@ import tkinter
 from tkinter import *
 from tkinter import messagebox
 from PIL import ImageTk,Image
+from os import path
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -23,6 +24,7 @@ DOWN = 0
 RIGHT = 1
 UP = 2
 LEFT = 3
+HS_FILE = "highscore.txt"
 
 # semua objek dalam screen adalah spot
 class Spot:
@@ -35,10 +37,22 @@ class Spot:
     self.neighbors = []
     self.camefrom = []
     self.obstacle = False
+    # self.load_data()
+
+  # def load_data(self):
+  #     # load high score
+  #     self.dir = path.dirname(__file__)
+  #     with open(path.join(self.dir, HS_FILE), 'r') as f:
+  #         try:
+  #             highscore = int(f.read())
+  #         except:
+  #             highscore = 0
 
     global level
     if randint(1, rows - 2) < level:    # < jumlah obstacle dlm 1 tempat
         self.obstacle = True
+
+
 
   def show(self, color):
     pg.draw.rect(screen, color, [self.x*hr+2, self.y*wr+2, hr-4, wr-4])
@@ -55,6 +69,16 @@ class Spot:
 
     if self.y < cols - 2:
         self.neighbors.append(grid[self.x][self.y + 1])
+
+def load_data():
+    # load high score
+    global highscore
+    with open(path.join(path.dirname(__file__), HS_FILE), 'r') as f:
+        try:
+            highscore = int(f.read())
+        except:
+            highscore = 0
+
 
 def getpath(food1, snake1):
   food1.camefrom = []     # init food camefrom
@@ -159,6 +183,12 @@ hr = height/rows
 direction = 1
 level = 1
 
+with open(path.join(path.dirname(__file__), HS_FILE), 'r') as f:
+    try:
+        highscore = int(f.read())
+    except:
+        highscore = 0
+
 screen = pg.display.set_mode([width, height])
 pg.display.set_caption("SNAKE GAME")
 clock = pg.time.Clock()
@@ -207,10 +237,22 @@ def Exit():
   root.destroy()
 
 def endMessage(content):
-  root.title("\tSNAKE GAME - GAME OVER!!!")
+  root.title("\tSNAKE GAME - GAME OVER")
   root.geometry('360x144')
   myLabel = Label(root, text=content)
   myLabel.pack()
+
+  global highscore
+  if score > highscore:
+        highscore = score
+        myLabel = Label(root, text="NEW HIGH SCORE!!!\n"+"High Score: " + str(highscore))
+        myLabel.pack()
+        with open(path.join(path.dirname(__file__), HS_FILE), 'w') as f:
+            f.write(str(score))
+  else:
+        myLabel = Label(root, text="High Score: " + str(highscore))
+        myLabel.pack()
+  pg.display.flip()
 
   myYesButton = Button(root, text="Play again", command=Again)
   myYesButton.pack()
@@ -265,11 +307,14 @@ def mainMenu():
     destroyed = False
 
   root.title("\tSNAKE GAME - WELCOME!!!")
-  root.geometry('650x820')
-  my_img = ImageTk.PhotoImage(Image.open("assets/snake.png"))
+  root.geometry('600x600')
+  image = Image.open("assets/snake.png")
+  zoom = 0.5
+  pixels_x, pixels_y = tuple([int(zoom * x)  for x in image.size])
+  my_img = ImageTk.PhotoImage(image.resize((pixels_x, pixels_y)))
   
   imageLabel = Label(image=my_img)
-  imageLabel.grid(row=0, column=0, columnspan=5, padx=10, pady=0)
+  imageLabel.grid(row=0, column=0, columnspan=5, padx=0, pady=0)
   
   levelLabel = Label(root, text="Level:")
   levelLabel.grid(row=1, column=0, columnspan=5, padx=10, pady=0)
@@ -315,7 +360,7 @@ def mainMenu():
   sizeDesc = Label(root, text="Size : " + str(cols))
   sizeDesc.grid(row=8, column=0, columnspan=5, padx=10, pady=5)
 
-  if modeAI: messMode = 'AI        '
+  if modeAI: messMode = 'AI'
   else : messMode = 'Human'
 
   modeDesc = Label(root, text="Mode : " + messMode)
@@ -334,8 +379,8 @@ def goTosetup():
 def setup():
   global cols, rows, width, height, wr, hr, direction, screen, clock, grid, snake, food, current, dir_array, score, out, done, isSetup
 
-  width = 720
-  height = 720
+  width = 600
+  height = 600
   wr = width/cols
   hr = height/rows
   direction = 1
@@ -412,6 +457,7 @@ while not done:
   # kali dia makan, skor++
   if current.x == food.x and current.y == food.y:
     score = score + 1
+    load_data()
     sp.call('clear',shell=True)
     print("Level = ",level)
     print("Size = ",cols)
