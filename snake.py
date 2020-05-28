@@ -386,7 +386,7 @@ def setup():
   direction = 1
 
   screen = pg.display.set_mode([width, height])
-  pg.display.set_caption("SNAKE GAME")
+  # pg.display.set_caption("SNAKE GAME\t\t"+str(score))
   clock = pg.time.Clock()
 
   #buat grid
@@ -421,6 +421,7 @@ def setup():
 
 ################################## MAIN PROGRAM ############################################
 while not done:
+  pg.display.set_caption("SNAKE GAME    Your Score : "+str(score))
   if toMainMenu:
     mainMenu()
     toMainMenu = False
