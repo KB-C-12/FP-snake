@@ -239,6 +239,8 @@ def Exit():
 def endMessage(content):
   root.title("\tSNAKE GAME - GAME OVER")
   root.geometry('360x144')
+  root.resizable(False, False)
+
   myLabel = Label(root, text=content)
   myLabel.pack()
 
@@ -308,6 +310,7 @@ def mainMenu():
 
   root.title("\tSNAKE GAME - WELCOME!!!")
   root.geometry('600x600')
+  root.resizable(False, False)
   image = Image.open("assets/snake.png")
   zoom = 0.5
   pixels_x, pixels_y = tuple([int(zoom * x)  for x in image.size])
